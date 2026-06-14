@@ -1,0 +1,1 @@
+# mschilde-auto-label-merge-conflicts
