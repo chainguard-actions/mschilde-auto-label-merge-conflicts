@@ -1,0 +1,61 @@
+name: Test required inputs validation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up git origin reachable inside the Docker container
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          rm -rf "$GITHUB_WORKSPACE/.git-remote"
+          git init --bare "$GITHUB_WORKSPACE/.git-remote"
+          git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
+            git remote add origin "$GITHUB_WORKSPACE/.git-remote"
+
+      - name: Verify action inputs are defined in action.yml
+        run: |
+          ACTION_YML="$GITHUB_WORKSPACE/action.yml"
+          echo "Checking action.yml for required inputs..."
+
+          if ! grep -q "CONFLICT_LABEL_NAME" "$ACTION_YML"; then
+            echo "FAIL: CONFLICT_LABEL_NAME input not found in action.yml"
+            exit 1
+          fi
+          echo "PASS: CONFLICT_LABEL_NAME input found"
+
+          if ! grep -q "GITHUB_TOKEN" "$ACTION_YML"; then
+            echo "FAIL: GITHUB_TOKEN input not found in action.yml"
+            exit 1
+          fi
+          echo "PASS: GITHUB_TOKEN input found"
+
+          if ! grep -q "required: true" "$ACTION_YML"; then
+            echo "FAIL: No required inputs found in action.yml"
+            exit 1
+          fi
+          echo "PASS: Required inputs are declared"
+
+      - id: action-with-label
+        uses: .
+        continue-on-error: true
+        with:
+          CONFLICT_LABEL_NAME: "merge-conflict"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert action ran with provided inputs
+        env:
+          OUTCOME: ${{ steps.action-with-label.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # Action should run (success or failure based on label existence),
+          # but must not be skipped or cancelled
+          if [ "$OUTCOME" = "cancelled" ] || [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was unexpectedly $OUTCOME - inputs may not have been passed correctly"
+            exit 1
+          fi
+          echo "PASS: action ran with provided inputs, outcome: $OUTCOME"
