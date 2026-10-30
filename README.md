@@ -6,9 +6,9 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 ## Versions
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v2.0 | [`v2.0`](https://github.com/chainguard-actions/mschilde-auto-label-merge-conflicts/tree/v2.0) | [`5981f89`](https://github.com/mschilde/auto-label-merge-conflicts/commit/5981f8933e92b78098af86b9e33fe0871cc7a3be) |
+| Version | Tag | Upstream commit | Hardening report |
+|---------|-----|-----------------|------------------|
+| v2.0 | [`v2.0`](https://github.com/chainguard-actions/mschilde-auto-label-merge-conflicts/tree/v2.0) | [`5981f89`](https://github.com/mschilde/auto-label-merge-conflicts/commit/5981f8933e92b78098af86b9e33fe0871cc7a3be) | [`HARDENING.md`](https://github.com/chainguard-actions/mschilde-auto-label-merge-conflicts/blob/v2.0/HARDENING.md) |
 
 ## Privacy
 
